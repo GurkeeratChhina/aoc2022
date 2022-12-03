@@ -18,12 +18,17 @@ def priority_duplicates(filename):
 def priority_badges(filename):
     sum = 0
     with open(filename) as file:
-        lines = file.readlines()
-        for a,b,c in zip(lines[::3], lines[1::3], lines[2::3]):
-            repeat_letter = (set(a.strip()).intersection(set(b.strip()),set(c.strip())))
-            num = ord(repeat_letter.pop())
-            priority = num - ord("A") + 27 if num < ord("a") else num - ord("a") + 1
-            sum += priority
+        while True:
+            try:
+                linea = file.readline().strip()
+                lineb = file.readline().strip()
+                linec = file.readline().strip()
+                repeat_letter = set(linea).intersection(set(lineb), set(linec))
+                num = ord(repeat_letter.pop())
+                priority = num - ord("A") + 27 if num < ord("a") else num - ord("a") + 1
+                sum += priority
+            except:
+                break
     return sum
 
 if __name__ == '__main__':
