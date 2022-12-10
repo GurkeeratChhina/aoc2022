@@ -7,6 +7,7 @@ class Computer:
         self.count = 0
     
     def noop(self):
+        self.draw()
         self.cycles += 1
         if self.cycles%40 == 20:
             self.count += self.cycles*self.register
@@ -15,6 +16,15 @@ class Computer:
         self.noop()
         self.noop()
         self.register += x
+
+    def draw(self):
+        if abs(self.register-(self.cycles%40)) <= 1:
+            print("█", end = "")
+        else:
+            print(" ", end = "")
+        if self.cycles%40 == -1%40:
+            print("")
+
 
 def read_input(filename):
     myComputer = Computer()
