@@ -10,6 +10,7 @@ class LinkedList:
         else:
             self.next = LinkedList(length-1)
 
+
 def l_infinity(point_a, point_b):
     return max([abs(point_a[i] - point_b[i]) for i in range(len(point_a))])
 
