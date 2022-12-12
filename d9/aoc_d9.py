@@ -1,6 +1,12 @@
-from numpy import sign
-
 input_file = 'd9/input.txt'
+
+def sign(x):
+    if x == 0:
+        return 0
+    elif x > 0:
+        return 1
+    else:
+        return -1
 
 class LinkedList:
     def __init__(self, length, dimension = 2):
