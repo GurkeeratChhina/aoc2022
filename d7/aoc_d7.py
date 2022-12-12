@@ -1,5 +1,4 @@
 import re
-from ast import literal_eval
 
 input_file = 'd7/input.txt'
 
@@ -45,6 +44,6 @@ def regex_subs(string):
     return re.sub(regex2, replacements2, string)
 
 if __name__ == '__main__':
-    used_space = tree_sum(literal_eval(regex_subs(file_string(input_file))))
+    used_space = tree_sum(eval(regex_subs(file_string(input_file))))
     print(sum([x for x in list_of_tree_sums if x <= 100000]))
     print(min([x for x in list_of_tree_sums if x + (total_space-used_space)>needed_space]))
