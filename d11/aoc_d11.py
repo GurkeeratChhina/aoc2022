@@ -1,6 +1,3 @@
-from sympy.parsing.sympy_parser import parse_expr
-from sympy import lambdify
-
 input_file = 'd11/input.txt'
 
 class Monkey:
@@ -50,7 +47,7 @@ def parse_input(filename, relief_function):
             try:
                 file.readline()
                 items = [int(x) for x in file.readline().strip().split(":")[1].split(",")]
-                worry_function = lambdify(parse_expr("old"), parse_expr(file.readline().strip().split("=")[1]))
+                worry_function = eval("lambda old:" + file.readline().strip().split("=")[1])
                 test = int(file.readline().strip().split(" ")[-1])
                 pass_true = int(file.readline().strip().split(" ")[-1])
                 pass_false = int(file.readline().strip().split(" ")[-1])
@@ -67,3 +64,4 @@ if __name__ == '__main__':
     monkeys2 = MonkeyCollection(parse_input(input_file, lambda x: x%9699690))
     monkeys2.do_round(10000)
     print(monkeys2.monkey_business())
+    
