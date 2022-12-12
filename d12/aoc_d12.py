@@ -17,7 +17,7 @@ class Graph:
     def __init__(self, nodes):
         self.nodes = nodes
 
-    def djikstras(self, start, end):
+    def dijkstras(self, start, end):
         unvisited = self.nodes
         current = start
         while True:
@@ -33,6 +33,22 @@ class Graph:
             current = min_distance(unvisited)
         return end.distance
 
+    def reverse_dijkstras(self, end, start_height):
+        unvisited = self.nodes
+        current = end
+        while True:
+            if current.height == start_height:
+                break
+            for neighbour in current.neighbours:
+                if neighbour.height >= current.height - 1:
+                    if neighbour.distance is None:
+                        neighbour.distance = current.distance + 1
+                    else:
+                        neighbour.distance = min(neighbour.distance, current.distance+1)
+            unvisited.remove(current)
+            current = min_distance(unvisited)
+        return current.distance
+
 def build_graph(filename):
     list_of_nodes = []
     start_node = None
@@ -42,7 +58,7 @@ def build_graph(filename):
             row = []
             for letter in line.strip():
                 if letter == "S":
-                    start_node = Node(0,0)
+                    start_node = Node(0)
                     row.append(start_node)
                 elif letter == "E":
                     end_node = Node(25)
@@ -68,7 +84,12 @@ def build_graph(filename):
                 else:
                     list_of_nodes[y][x].neighbours.append(list_of_nodes[y+1][x])
                     list_of_nodes[y][x].neighbours.append(list_of_nodes[y-1][x])
-    return Graph([x for row in list_of_nodes for x in row]).djikstras(start_node, end_node)
+    return [Graph([x for row in list_of_nodes for x in row]), start_node, end_node]
 
 if __name__ == '__main__':
-    print(build_graph(input_file))               
+    myGraph, starting_node, ending_node = build_graph(input_file)
+    # starting_node.distance = 0
+    # print(myGraph.dijkstras(starting_node,ending_node))
+    ending_node.distance = 0
+    print(myGraph.reverse_dijkstras(ending_node,0))
+
