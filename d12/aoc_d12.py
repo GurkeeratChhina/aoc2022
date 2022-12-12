@@ -17,37 +17,20 @@ class Graph:
     def __init__(self, nodes):
         self.nodes = nodes
 
-    def dijkstras(self, start, end):
+    def dijkstras(self, start, end_condition, node_condition):
         unvisited = self.nodes
         current = start
         while True:
-            if current == end:
-                break
+            if end_condition(current):
+                return current.distance
             for neighbour in current.neighbours:
-                if neighbour.height <= current.height + 1:
+                if node_condition(current, neighbour):
                     if neighbour.distance is None:
                         neighbour.distance = current.distance + 1
                     else:
                         neighbour.distance = min(neighbour.distance, current.distance+1)
             unvisited.remove(current)
             current = min_distance(unvisited)
-        return end.distance
-
-    def reverse_dijkstras(self, end, start_height):
-        unvisited = self.nodes
-        current = end
-        while True:
-            if current.height == start_height:
-                break
-            for neighbour in current.neighbours:
-                if neighbour.height >= current.height - 1:
-                    if neighbour.distance is None:
-                        neighbour.distance = current.distance + 1
-                    else:
-                        neighbour.distance = min(neighbour.distance, current.distance+1)
-            unvisited.remove(current)
-            current = min_distance(unvisited)
-        return current.distance
 
 def build_graph(filename):
     list_of_nodes = []
@@ -89,7 +72,7 @@ def build_graph(filename):
 if __name__ == '__main__':
     myGraph, starting_node, ending_node = build_graph(input_file)
     # starting_node.distance = 0
-    # print(myGraph.dijkstras(starting_node,ending_node))
+    # print(myGraph.dijkstras(starting_node,lambda x: x == ending_node, lambda x,y: y.height <= x.height +1))
     ending_node.distance = 0
-    print(myGraph.reverse_dijkstras(ending_node,0))
+    print(myGraph.dijkstras(ending_node, lambda x: x.height == 0, lambda x,y: y.height >= x.height -1))
 
