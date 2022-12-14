@@ -84,11 +84,9 @@ def make_maze(filename, x_min, x_max, y_max, origin):
 if __name__ == '__main__':
     x_min,x_max,y_max = find_min_max(input_file)
     myMaze = make_maze(input_file, x_min, x_max, y_max, [500, 0])
-    print(myMaze.width, myMaze.height)
     print(myMaze.make_sand())
     myMaze2 = make_maze(input_file, x_min - y_max, x_max + y_max, y_max+2, [500,0])
     myMaze2.add_line([0, y_max+2], [x_max - x_min + 2*y_max, y_max+2])
     myMaze2.add_point([x_max - x_min + 2*y_max, y_max+2])
-    print(myMaze2.width, myMaze2.height)
     print(myMaze2.make_sand())
 
