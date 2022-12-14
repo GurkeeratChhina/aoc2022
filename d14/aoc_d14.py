@@ -45,7 +45,7 @@ class Maze():
                 return True
     
     def make_sand(self):
-        while(True):
+        while(self.array[self.origin[1]][self.origin[0]] == 0):
             if not self.make_one_sand():
                 break
         return self.sand_count
@@ -71,8 +71,7 @@ def find_min_max(filename):
                 y_max = max(y_max, int(pair.split(",")[1]))
     return [x_min,x_max,y_max]
 
-def make_maze(filename, origin):
-    x_min,x_max,y_max = find_min_max(filename)
+def make_maze(filename, x_min, x_max, y_max, origin):
     maze = Maze(x_max - x_min, y_max, (origin[0] - x_min, origin[1]))
     with open(filename) as file:
         for line in file:
@@ -81,8 +80,15 @@ def make_maze(filename, origin):
                 maze.add_line(coords[i], coords[i+1])
             maze.add_point(coords[-1])
     return maze
-        
 
 if __name__ == '__main__':
-    myMaze = make_maze(input_file, [500, 0])
+    x_min,x_max,y_max = find_min_max(input_file)
+    myMaze = make_maze(input_file, x_min, x_max, y_max, [500, 0])
+    print(myMaze.width, myMaze.height)
     print(myMaze.make_sand())
+    myMaze2 = make_maze(input_file, x_min - y_max, x_max + y_max, y_max+2, [500,0])
+    myMaze2.add_line([0, y_max+2], [x_max - x_min + 2*y_max, y_max+2])
+    myMaze2.add_point([x_max - x_min + 2*y_max, y_max+2])
+    print(myMaze2.width, myMaze2.height)
+    print(myMaze2.make_sand())
+
