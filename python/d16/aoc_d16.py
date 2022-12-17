@@ -58,6 +58,33 @@ class Graph:
         second_step = max([self.max_flow_rate(node, [target for target in target_nodes if target != node], time-self.min_distance[start_node.id][node.id]) for node in target_nodes]+[0])
         return first_step + second_step
 
+    def multi_headed_flow(self, start, targets, time, num_heads):
+        max_attempt = 0
+        if num_heads == 1:
+            return self.max_flow_rate(start,targets,time)
+        for path in self.make_paths(start, targets, time):
+            current = start
+            current_time = time
+            path_sum = 0
+            for node in path[1:]:
+                current_time -= self.min_distance[current.id][node.id]
+                path_sum += current_time*node.flowrate
+                current = node
+            rest = self.multi_headed_flow(start, [x for x in targets if x not in path], time, num_heads-1)
+            max_attempt = max(max_attempt, path_sum + rest)
+        return max_attempt
+    
+    def make_paths(self, start, targets, time):
+        total_paths = [[]]
+        for node in targets:
+            time_remaining = time - self.min_distance[start.id][node.id]
+            if time_remaining > 0:
+                path_from_node = self.make_paths(node, [x for x in targets if x != node], time_remaining)
+                total_paths += path_from_node
+        total_paths = [[start] + path for path in total_paths]
+        return total_paths
+
+
 def build_nodes(filename):
     dict_of_nodes = {}
     with open(filename) as file:
@@ -84,4 +111,4 @@ if __name__ == '__main__':
     non_zero_nodes = [node for node in list(myNodes.values()) if node.flowrate > 0]
     max_flow = myGraph.max_flow_rate(myNodes['AA'], non_zero_nodes, 30)
     print(max_flow)
-    
+    print(myGraph.multi_headed_flow(myNodes['AA'],non_zero_nodes,26,2))
