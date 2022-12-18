@@ -6,7 +6,7 @@ test_file = 'python/d15/test.txt'
 
 myrow = 2000000
 myrange = (0,4000000)
-large_const = 1000000000
+large_const = 100000000
 
 def l1(a, b, c, d):
     return abs(a-c)+abs(b-d)
@@ -71,20 +71,16 @@ def linear_program(filename, x_range, y_range, objective):
         for line in file:
             a,b,c,d = [int(x) for x in re.findall(r'-?\d+', line)]
             r = l1(a, b, c, d)
-            # print("-x - y  - large_const*Bool <= -a-b-r")
-            a_ub.append([-1, -1, -large_const])
+            a_ub.append([-1, -1, -large_const, -large_const])
             b_ub.append(-a-b-r)
-            # print("-x + y  - large_const*Bool <= -a+b-r")
-            a_ub.append([-1, 1, -large_const])
-            b_ub.append(-a+b-r)
-            # print("x - y + large_const*Bool <= M + a -b -r")
-            a_ub.append([1, -1, large_const])
-            b_ub.append(large_const+a-b-r)
-            # print("x + y + large_const*Bool <= M + a + b -r")
-            a_ub.append([1, 1, large_const])
-            b_ub.append(large_const+a+b-r)
-    c = [objective[0],objective[1],0]
-    result = scipy.optimize.linprog(c=c, A_ub = a_ub, b_ub = b_ub, bounds = [x_range, y_range, (0,1)], integrality = [1,1,1])
+            a_ub.append([-1, 1, -large_const, large_const])
+            b_ub.append(-a+b+large_const-r)
+            a_ub.append([1, -1, large_const, -large_const])
+            b_ub.append(a-b+large_const-r)
+            a_ub.append([1, 1, large_const,large_const])
+            b_ub.append(a+b+2*large_const-r)
+    c = [objective[0],objective[1],0,0]
+    result = scipy.optimize.linprog(c=c, A_ub = a_ub, b_ub = b_ub, bounds = [x_range, y_range, (0,1), (0,1)], integrality = [1,1,1,1])
     return result.status
 
 
@@ -94,5 +90,5 @@ if __name__ == '__main__':
     sum = sum([x[1] - x[0] +1 for x in intervals]) - len(beacons)
     print(sum)
     # find_gaps(input_file, myrange)
-    print(2628223+2939043*4000000)
+    # print(2628223+2939043*4000000)
     print(linear_program(input_file, myrange, myrange, (4000000, 1)))
