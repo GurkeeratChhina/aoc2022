@@ -1,6 +1,8 @@
 input_file = 'python/d17/input.txt'
 test_file = 'python/d17/test.txt'
 
+max_sims = 1000000000000
+
 class Rock:
     def __init__(self, x,y, rock_type):
         if rock_type%5 == 0:
@@ -20,7 +22,7 @@ class Rock:
 class Game:
     def __init__(self, left_right_tape):
         self.formation = [[1,1,1,1,1,1,1,1,1],[1,0,0,0,0,0,0,0,1]]
-        self.height = 1
+        self.height = 0
         self.rock_count = 0
         self.left_right_index = 0
         self.tape = left_right_tape
@@ -46,25 +48,52 @@ class Game:
     def add_to_formation(self, rock):
         for point in rock.points:
             self.formation[point[1]][point[0]] = 1
-            self.height = max(self.height, point[1]+1)
+            self.height = max(self.height, point[1])
         del rock
 
     def process_new_rock(self):
         rock = self.new_rock()
         while True:
-            self.try_move(rock, to_direction(self.tape[self.left_right_index%self.tape_len]))
-            self.left_right_index += 1
+            self.try_move(rock, to_direction(self.tape[self.left_right_index]))
+            self.left_right_index = (self.left_right_index + 1)%self.tape_len
             successful = self.try_move(rock, (0,-1))
             if not successful:
                 self.add_to_formation(rock)
                 break
 
     def new_rock(self):
-        rock = Rock(3, self.height+3, self.rock_count)
+        rock = Rock(3, self.height+4, self.rock_count)
         self.rock_count += 1
-        while len(self.formation) < self.height + 7:
+        while len(self.formation) < self.height + 8:
             self.formation.append([1,0,0,0,0,0,0,0,1])
         return rock
+
+    def find_cycle(self):
+        past_positions = {}
+        while True:
+            self.process_new_rock()
+            newtuple = (self.left_right_index, self.rock_count%5,tuple(self.formation[self.height]))
+            if newtuple in past_positions:
+                return [(self.height, self.rock_count),past_positions[newtuple]]
+            else:
+                past_positions[newtuple] = (self.height, self.rock_count)
+
+    def height_with_cycles(self, iterations):
+        self.find_cycle()
+        cycle = myTetris.find_cycle()
+        old_height = cycle[1][0]
+        new_height = cycle[0][0]
+        old_rocks = cycle[1][1]
+        new_rocks = cycle[0][1]
+        cycle_len_rocks = new_rocks- old_rocks
+        cycle_len_height = new_height - old_height
+        number_cycles = (iterations-old_rocks)//cycle_len_rocks
+        remainder = (iterations-old_rocks)%cycle_len_rocks
+        for i in range(remainder):
+            self.process_new_rock()
+        from_remainder = self.height - new_height
+        final_height = old_height + cycle_len_height*number_cycles + from_remainder
+        return final_height
 
 def to_direction(arrow):
     if arrow == '<':
@@ -77,6 +106,8 @@ if __name__ == '__main__':
     with open(input_file) as f:
         tape = f.readline().strip()
     myTetris = Game(tape)
-    for i in range(1000000000000):
-        myTetris.process_new_rock()
-    print(myTetris.height-1)
+    # for i in range(2022):
+    #     myTetris.process_new_rock()
+    # print(myTetris.height)
+    print(myTetris.height_with_cycles(max_sims))
+
