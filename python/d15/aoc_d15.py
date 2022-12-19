@@ -1,12 +1,14 @@
 import re
 import scipy
+import timeit
 
 input_file = 'python/d15/input.txt'
 test_file = 'python/d15/test.txt'
+second_test = 'python/d15/basic.txt'
 
 myrow = 2000000
 myrange = (0,4000000)
-large_const = 100000000
+M = 100000000
 
 def l1(a, b, c, d):
     return abs(a-c)+abs(b-d)
@@ -65,24 +67,32 @@ def find_gaps(filename, target_range):
             return [intervals[0][1]+1, row]
 
 def linear_program(filename, x_range, y_range, objective):
-    a_ub = []
-    b_ub = []
     with open(filename) as file:
-        for line in file:
+        lines = file.readlines()
+        n = len(lines)
+        a_ub = [[0 for x in range(2*n+2)] for y in range(4*n)]
+        b_ub = []
+        for i in range(n):
+            line = lines[i]
             a,b,c,d = [int(x) for x in re.findall(r'-?\d+', line)]
-            r = l1(a, b, c, d)
-            a_ub.append([-1, -1, -large_const, -large_const])
+            r = l1(a, b, c, d)+1
+            a_ub[4*i][0:2] = [-1,-1]
+            a_ub[4*i][2*i+2:2*i+4] = [-M, -M]
+            a_ub[4*i+1][0:2] = [-1,1]
+            a_ub[4*i+1][2*i+2:2*i+4] = [-M, M]
+            a_ub[4*i+2][0:2] = [1,-1]
+            a_ub[4*i+2][2*i+2:2*i+4] = [M, -M]
+            a_ub[4*i+3][0:2] = [1,1]
+            a_ub[4*i+3][2*i+2:2*i+4] = [M, M]
             b_ub.append(-a-b-r)
-            a_ub.append([-1, 1, -large_const, large_const])
-            b_ub.append(-a+b+large_const-r)
-            a_ub.append([1, -1, large_const, -large_const])
-            b_ub.append(a-b+large_const-r)
-            a_ub.append([1, 1, large_const,large_const])
-            b_ub.append(a+b+2*large_const-r)
-    c = [objective[0],objective[1],0,0]
-    result = scipy.optimize.linprog(c=c, A_ub = a_ub, b_ub = b_ub, bounds = [x_range, y_range, (0,1), (0,1)], integrality = [1,1,1,1])
-    return result.status
-
+            b_ub.append(-a+b+M-r)
+            b_ub.append(a-b+M-r)
+            b_ub.append(a+b+2*M-r)
+        c = objective + [0 for x in range(2*n)]
+        bounds = [x_range, y_range] + [(0,1) for x in range(2*n)]
+        integral = [1 for x in range(2*n + 2)]
+    result = scipy.optimize.linprog(c=c, A_ub = a_ub, b_ub = b_ub, bounds = bounds, integrality = integral)
+    return result.fun
 
 if __name__ == '__main__':
     intervals, beacons = build_intervals(input_file, myrow)
@@ -91,4 +101,5 @@ if __name__ == '__main__':
     print(sum)
     # find_gaps(input_file, myrange)
     # print(2628223+2939043*4000000)
-    print(linear_program(input_file, myrange, myrange, (4000000, 1)))
+    time = timeit.timeit('linear_program("python/d15/input.txt", (0,4000000), (0,4000000), [4000000, 1])', "from __main__ import linear_program", number = 10)
+    print(time)
