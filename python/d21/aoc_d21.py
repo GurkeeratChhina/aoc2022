@@ -14,52 +14,28 @@ def build_dict(filename):
                 monkey_dict[id] = value
     return monkey_dict
 
-def root_value(dictionary):
-    def parse_operation(op_str):
-        a, op, b = op_str.split()
-        if op == "+":
-            return recursive_value(a) + recursive_value(b)
-        elif op == "-":
-            return recursive_value(a) - recursive_value(b)
-        elif op == "*":
-            return recursive_value(a) * recursive_value(b)
-        elif op == "/":
-            return recursive_value(a) / recursive_value(b)
-    
-    def recursive_value(id):
-        if isinstance(dictionary[id], str):
-            value = parse_operation(dictionary[id])
-            dictionary[id] = value
-        return dictionary[id]
-    
-    return recursive_value('root')
+def parse_operation(op_str, dictionary):
+    a, op, b = op_str.split()
+    c = recursive_value(a, dictionary)
+    d = recursive_value(b, dictionary)
+    if isinstance(c, str) or isinstance(d, str):
+        return op_str
+    return eval("c"+op+"d")
+
+def recursive_value(id, dictionary):
+    if dictionary[id] == 'humn':
+        return "humn"
+    if isinstance(dictionary[id], str):
+        value = parse_operation(dictionary[id], dictionary)
+        dictionary[id] = value
+    return dictionary[id]
+
+def root_value(dictionary):    
+    return recursive_value('root', dictionary)
 
 def human_value(dictionary):
-    
-    def parse_operation(op_str):
-        a, op, b = op_str.split()
-        c = recursive_value(a)
-        d = recursive_value(b)
-        if isinstance(c, str) or isinstance(d, str):
-            return op_str
-        elif op == "+":
-            return c + d
-        elif op == "-":
-            return c - d
-        elif op == "*":
-            return c * d
-        elif op == "/":
-            return c / d
-    
-    def recursive_value(id):
-        if id == 'humn':
-            return "humn"
-        if isinstance(dictionary[id], str):
-            value = parse_operation(dictionary[id])
-            dictionary[id] = value
-        return dictionary[id]
-
-    recursive_value("root")
+    dictionary["humn"] = "humn"
+    recursive_value("root", dictionary)
 
     def reverse_operation(id, value):
         if id == "humn":
@@ -86,7 +62,6 @@ def human_value(dictionary):
             elif op == "/":
                 return reverse_operation(b,  dictionary[a]/value)
 
-    dictionary["humn"] = "humn"
     left, middle, right = dictionary["root"].split()
     if isinstance(dictionary[left], str):
         reverse_operation(left, dictionary[right])
