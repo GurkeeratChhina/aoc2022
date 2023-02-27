@@ -1,6 +1,6 @@
 use std::fs;
 
-static INPUT_FILE:&str = "src/d1/input.txt";
+static INPUT_FILE:&str = "inputs/d1input.txt";
 
 pub fn part1() -> i32{
     return sum_largest(to_sums(INPUT_FILE), 1);
